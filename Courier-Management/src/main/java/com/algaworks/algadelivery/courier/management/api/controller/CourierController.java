@@ -1,6 +1,5 @@
 package com.algaworks.algadelivery.courier.management.api.controller;
 
-
 import com.algaworks.algadelivery.courier.management.api.model.CourierInput;
 import com.algaworks.algadelivery.courier.management.api.model.CourierPayoutCalculationInput;
 import com.algaworks.algadelivery.courier.management.api.model.CourierPayoutResultModel;
@@ -10,6 +9,8 @@ import com.algaworks.algadelivery.courier.management.domain.service.CourierPayou
 import com.algaworks.algadelivery.courier.management.domain.service.CourierRegistrationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedModel;
@@ -18,8 +19,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.util.Random;
 import java.util.UUID;
 
+@Log4j2
 @RestController
 @RequestMapping("/api/v1/couriers")
 @RequiredArgsConstructor
@@ -53,10 +56,14 @@ public class CourierController {
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
+    @SneakyThrows
     @PostMapping("/payout-calculation")
     public CourierPayoutResultModel calculate(
             @RequestBody CourierPayoutCalculationInput input) {
         BigDecimal payoutFee = courierPayoutService.calculate(input.distanceInKm());
+
+        log.info("Payout fee eh {}", payoutFee.toString());
+
         return new CourierPayoutResultModel(payoutFee);
     }
 
